@@ -50,7 +50,7 @@ public class ListController {
                 ), HttpStatus.OK);
     }
 
-    @PostMapping(path = "/delete")
+    @DeleteMapping(path = "/delete")
     public @ResponseBody
     ResponseEntity<ResponseDTO> delete(@RequestBody @Valid String listId) {
         assistanceRepoImpl.deleteByListId(listId);
