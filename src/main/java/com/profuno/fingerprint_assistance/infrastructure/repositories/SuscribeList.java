@@ -27,9 +27,7 @@ public class SuscribeList {
 
     public SuscribeList(SuscribeListDTO suscribeListDTO){
         BeanUtils.copyProperties(suscribeListDTO, this);
-        if(suscribeListDTO.getSuscribeListId() == null || suscribeListDTO.getSuscribeListId().length() == 0){
-            this.suscribeListId = RandomStringService.generateRandom(32);
-        }
+        this.suscribeListId = RandomStringService.generateRandom(32);
 
         this.assistant = new Assistant();
         this.assistant.setFingerprintImage(suscribeListDTO.getAssistantFingerprint());

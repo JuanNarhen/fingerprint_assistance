@@ -2,6 +2,7 @@ package com.profuno.fingerprint_assistance.application;
 
 import com.profuno.fingerprint_assistance.domain.contracts.data.AssistanceAble;
 import com.profuno.fingerprint_assistance.domain.dto.AssistanceDTO;
+import com.profuno.fingerprint_assistance.exception.FingerprintApplicationException;
 import com.profuno.fingerprint_assistance.infrastructure.repositories.Assistance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -22,7 +23,7 @@ public class AssistanceRepoImpl implements AssistanceAble{
     }
 
     @Override
-    public boolean deleteByListId(String listId){
+    public boolean deleteByListId(String listId) throws FingerprintApplicationException {
         return assistancePersistence.deleteByListId(listId);
     }
 

@@ -6,7 +6,8 @@ import com.profuno.fingerprint_assistance.application.SuscribeListRepoImpl;
 import com.profuno.fingerprint_assistance.domain.dto.ListDTO;
 import com.profuno.fingerprint_assistance.domain.dto.response.ErrorDTO;
 import com.profuno.fingerprint_assistance.domain.dto.response.ResponseDTO;
-import com.profuno.fingerprint_assistance.utils.resources.LanguageResource;
+import com.profuno.fingerprint_assistance.exception.FingerprintApplicationException;
+import com.profuno.fingerprint_assistance.utils.resources.MessageResource;
 import com.profuno.fingerprint_assistance.utils.services.ListValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,7 +28,7 @@ import java.util.List;
 public class ListController {
     //region services
     @Autowired
-    private LanguageResource languageResource;
+    private MessageResource messageResource;
     @Autowired
     private ListValidationService listValidationService;
     //endregion
@@ -44,7 +47,7 @@ public class ListController {
     ResponseEntity<ResponseDTO> save(@RequestBody @Valid ListDTO listDTO) {
         return new ResponseEntity<ResponseDTO>(
                 new ResponseDTO(
-                        languageResource.getDefaultMessage("response.succes"),
+                        messageResource.getDefaultMessage("response.succes"),
                         listRepoImpl.save(listDTO),
                         null
                 ), HttpStatus.OK);
@@ -52,7 +55,7 @@ public class ListController {
 
     @DeleteMapping(path = "/delete")
     public @ResponseBody
-    ResponseEntity<ResponseDTO> delete(@RequestBody @Valid String listId) {
+    ResponseEntity<ResponseDTO> delete(@RequestBody @NotNull @NotBlank String listId) throws FingerprintApplicationException {
         assistanceRepoImpl.deleteByListId(listId);
         suscribeListRepoImpl.deleteByListId(listId);
         boolean deleteList = listRepoImpl.delete(listId);
@@ -60,12 +63,12 @@ public class ListController {
         List<ErrorDTO> errors = null;
         if(!deleteList){
             errors = new LinkedList<ErrorDTO>();
-            errors.add(new ErrorDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), languageResource.getDefaultMessage("response.invalid_delete")));
+            errors.add(new ErrorDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), messageResource.getDefaultMessage("response.invalid_delete")));
         }
 
         return new ResponseEntity<ResponseDTO>(
                 new ResponseDTO(
-                        languageResource.getDefaultMessage("response.succes"),
+                        messageResource.getDefaultMessage("response.succes"),
                         deleteList,
                         errors
                 ), HttpStatus.OK);
@@ -82,7 +85,7 @@ public class ListController {
 
         return new ResponseEntity<ResponseDTO>(
                 new ResponseDTO(
-                        languageResource.getDefaultMessage("response.succes"),
+                        messageResource.getDefaultMessage("response.succes"),
                         lists,
                         errors
                 ), HttpStatus.OK);

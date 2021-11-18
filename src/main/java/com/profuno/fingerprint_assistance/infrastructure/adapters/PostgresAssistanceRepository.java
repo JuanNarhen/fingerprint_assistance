@@ -2,7 +2,9 @@ package com.profuno.fingerprint_assistance.infrastructure.adapters;
 
 import com.profuno.fingerprint_assistance.domain.contracts.data.AssistanceAble;
 import com.profuno.fingerprint_assistance.domain.dto.AssistanceDTO;
+import com.profuno.fingerprint_assistance.exception.FingerprintApplicationException;
 import com.profuno.fingerprint_assistance.infrastructure.repositories.*;
+import com.profuno.fingerprint_assistance.utils.resources.MessageResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
@@ -19,6 +21,9 @@ public class PostgresAssistanceRepository implements AssistanceAble {
     @Autowired
     private AssistanceRepository assistanceRepository;
 
+    @Autowired
+    private MessageResource messageResource;
+
     @Override
     public AssistanceDTO save(AssistanceDTO assistanceDTO) {
         return assistanceRepository.save(new Assistance(assistanceDTO)).toAssistanceDTO();
@@ -26,8 +31,18 @@ public class PostgresAssistanceRepository implements AssistanceAble {
 
     @Override
     @Transactional
-    public boolean deleteByListId(String listId){
-        return assistanceRepository.deleteAllByList_ListId(listId) == 1;
+    public boolean deleteByListId(String listId) throws FingerprintApplicationException {
+        if(!assistanceRepository.existsByList_ListId(listId)){
+            return false;
+        }
+        if(listId != null && !listId.isBlank()){
+            return assistanceRepository.deleteAllByList_ListId(listId) == 1;
+        }else{
+            throw new FingerprintApplicationException(
+                    messageResource.getDefaultMessage("error.id_not_found",listId, "Assistance")
+            );
+        }
+
     }
 
     @Override

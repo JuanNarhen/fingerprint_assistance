@@ -31,9 +31,7 @@ public class Assistance {
 
     public Assistance(AssistanceDTO assistanceDTO){
         BeanUtils.copyProperties(assistanceDTO, this);
-        if(assistanceDTO.getAssistanceId() == null || assistanceDTO.getAssistanceId().length() == 0){
-            this.assistanceId = RandomStringService.generateRandom(32);
-        }
+        this.assistanceId = RandomStringService.generateRandom(32);
 
         this.list = new List();
         this.list.setListId(assistanceDTO.getListId());

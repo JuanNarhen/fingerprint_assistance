@@ -30,7 +30,7 @@ public class SwaggerConfig {
         return new ApiInfo(
                 "Manage Fingerprint Entities Controllers",
                 "Service Rest API Crud for fingerprint system repositories",
-                "1.0",
+                "1.1",
                 "Terms of service",
                 new Contact("Juan Naranjo", "Contact URL", "jcnaranjo79678@umanizales.edu.co"),
                 "LICENSE",

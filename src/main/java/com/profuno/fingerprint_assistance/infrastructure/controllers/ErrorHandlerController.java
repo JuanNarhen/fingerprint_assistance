@@ -2,8 +2,10 @@ package com.profuno.fingerprint_assistance.infrastructure.controllers;
 
 import com.profuno.fingerprint_assistance.domain.dto.response.ErrorDTO;
 import com.profuno.fingerprint_assistance.domain.dto.response.ResponseDTO;
-import com.profuno.fingerprint_assistance.utils.resources.LanguageResource;
+import com.profuno.fingerprint_assistance.exception.FingerprintApplicationException;
+import com.profuno.fingerprint_assistance.utils.resources.MessageResource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -19,7 +21,7 @@ import java.util.List;
 public class ErrorHandlerController {
 
     @Autowired
-    private LanguageResource languageResource;
+    private MessageResource messageResource;
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<?> handle(MethodArgumentNotValidException ex){
@@ -29,7 +31,7 @@ public class ErrorHandlerController {
             String errorMessage = error.getDefaultMessage();
             listErrors.add(new ErrorDTO(HttpStatus.BAD_REQUEST.value(), fieldName +" "+ errorMessage));
         });
-        String message = languageResource.getDefaultMessage("response.invalid_fields");
+        String message = messageResource.getDefaultMessage("response.invalid_fields");
         ResponseDTO response = new ResponseDTO( message,null , listErrors);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
@@ -38,7 +40,7 @@ public class ErrorHandlerController {
     protected ResponseEntity<?> handle(HttpMessageNotReadableException ex){
         List<ErrorDTO> listErrors = new ArrayList<>();
         listErrors.add(new ErrorDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage()));
-        String message = languageResource.getDefaultMessage("response.request_data_not_readable");
+        String message = messageResource.getDefaultMessage("response.request_data_not_readable");
         ResponseDTO response = new ResponseDTO( message,null , listErrors);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
@@ -47,9 +49,26 @@ public class ErrorHandlerController {
     protected ResponseEntity<?> handle(PersistenceException ex){
         List<ErrorDTO> listErrors = new ArrayList<>();
         listErrors.add(new ErrorDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage()));
-        String message = languageResource.getDefaultMessage("response.persistence_error");
+        String message = messageResource.getDefaultMessage("response.persistence_error");
         ResponseDTO response = new ResponseDTO( message,null , listErrors);
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    protected ResponseEntity<?> handle(DataIntegrityViolationException ex){
+        List<ErrorDTO> listErrors = new ArrayList<>();
+        listErrors.add(new ErrorDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getRootCause().getMessage()));
+        String message = messageResource.getDefaultMessage("response.persistence_error");
+        ResponseDTO response = new ResponseDTO( message,null , listErrors);
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(FingerprintApplicationException.class)
+    protected ResponseEntity<?> handle(FingerprintApplicationException ex){
+        List<ErrorDTO> listErrors = new ArrayList<>();
+        listErrors.add(new ErrorDTO(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage()));
+        String message = messageResource.getDefaultMessage("error.internal");
+        ResponseDTO response = new ResponseDTO( message,null , listErrors);
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }
